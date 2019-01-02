@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:ws="http://jax-ws.dev.java.net/spring/core"
+	xmlns:wss="http://jax-ws.dev.java.net/spring/servlet"    
+    xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/context
+						http://www.springframework.org/schema/context/spring-context.xsd
+       					http://jax-ws.dev.java.net/spring/core
+        				http://jax-ws.dev.java.net/spring/core.xsd
+        				http://jax-ws.dev.java.net/spring/servlet
+        				http://jax-ws.dev.java.net/spring/servlet.xsd 
+						http://www.springframework.org/schema/tx
+						http://www.springframework.org/schema/tx/spring-tx.xsd" 
+	xmlns:tx="http://www.springframework.org/schema/tx">
+        
+        <!-- ============= PERMITE CONFIGURAR Y HABILITAR ANOTACIONES CON SPRING ========== -->
+        <context:annotation-config></context:annotation-config>
+        <context:component-scan base-package="net.tecgurus.sistemabancario"></context:component-scan>
+
+		<!-- ============= PERMITE GENERAR LA CONEXION CON UN DATASOURCE DE SPRING ====== -->
+		<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+			<property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+			<property name="url" value="jdbc:mysql://localhost:3306/sistemabancario"></property>
+			<property name="username" value="root"></property>
+			<property name="password" value="tecguru$"></property>
+		</bean>
+		
+		<!-- ============== PERMITE ABRIR LA SESION DE HIBERNATE ============= -->
+		<bean id="sessionFactory" class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+			<property name="dataSource" ref="dataSource"></property>
+			<property name="packagesToScan" value="net/tecgurus/sistemabancario/entities"></property>
+			<property name="hibernateProperties">
+				<props>
+					<prop key="hibernate.show_sql">true</prop>
+					<prop key="hibernate.enable_lazy_load_no_trans">true</prop>
+				</props>
+			</property>
+		</bean>
+		
+		<!-- PERMITE HABILITAR LAS TRANSACCIONES A LA BASE DE DATOS CON @Transactional -->
+	
+		<tx:annotation-driven transaction-manager="transactionManager" />
+	
+		<bean id="transactionManager" class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+			<property name="sessionFactory" ref="sessionFactory" />
+		</bean>
+		
+<!-- 		<bean id="usuarioDAO" class="net.tecgurus.sistemabancario.data.UsuarioDAO"> -->
+
+<!-- 		</bean> -->
+		
+		<!-- CONFIGURACION DE ENDPOINTS PARA WEBSERVICES -->
+
+		<wss:binding url="/catalogosWS">
+			<wss:service>
+				<ws:service bean="#catalogosWS"></ws:service>
+			</wss:service>
+		</wss:binding>
+
+</beans>
